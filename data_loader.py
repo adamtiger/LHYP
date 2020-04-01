@@ -19,12 +19,41 @@ class DataLoader:
 		return area
 
 	def sort_cons(self, directory):
-		cr = CONreaderVM(directory + 'sa/contours.con')
+		cr = CONreaderVM(directory + '/sa/contours.con')
 		contours = cr.get_hierarchical_contours()
-		dr =  DCMreaderVM(directory + 'sa/images')
+		dr =  DCMreaderVM(directory + '/sa/images')
 		_, __, weight, height, gender = cr.get_volume_data()
-		num = [3,7,11]
-		
+
+		num = []
+
+		if(len(contours)==12):
+			for i in range(3,11, 3):
+				frm_num = list(contours[i])
+				if('ln' in contours[i][frm_num[0]].keys()):
+					num.append(i)
+				else:
+					num.append(i+1)
+
+		if(len(contours)==13):
+			for i in range(3,12, 4):
+				frm_num = list(contours[i])
+				if('ln' in contours[i][frm_num[0]].keys()):
+					num.append(i)
+				else:
+					num.append(i+1)
+
+		if(len(contours)==14):
+			for i in range(3,13, 4):
+				frm_num = list(contours[i])
+				if('ln' in contours[i][frm_num[0]].keys()):
+					num.append(i)
+				else:
+					num.append(i+1)
+
+
+		with open(directory+"/meta", "r") as meta:
+			pathology = meta.readline().split(' ')[1]
+
 		frm_num = list(contours[3])
 
 		if(self.calc_area(contours[3][frm_num[0]]['ln']) 
@@ -45,14 +74,14 @@ class DataLoader:
 			sy_images.append(dr.get_image(i, systole_fr))
 			sy_contours.append(contours[i][systole_fr]['ln'])
 
-		return  weight, height, gender, np.array(dy_images, dtype=np.uint8), dy_contours, np.array(sy_images, dtype=np.uint8), sy_contours 
+		return  pathology, weight, height, gender, np.array(dy_images, dtype=np.uint8), dy_contours, np.array(sy_images, dtype=np.uint8), sy_contours 
 
 
 	def picklePatient(self, directory, id):
-		weight, height, gender, dy_images, dy_contours, sy_images, sy_contours = self.sort_cons(directory)
+		pathology, weight, height, gender, dy_images, dy_contours, sy_images, sy_contours = self.sort_cons(directory)
 
 		
-		patient = Patient(gender, weight, height, dy_images,
+		patient = Patient(pathology, gender, weight, height, dy_images,
 						 dy_contours, sy_images, sy_contours)
 
 		output = 'patient'+str(id)

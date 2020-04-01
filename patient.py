@@ -1,5 +1,6 @@
 class Patient:
-	def __init__(self, gender, weight, height, dy_images, dy_contours, sy_images, sy_contours):
+	def __init__(self, pathology, gender, weight, height, dy_images, dy_contours, sy_images, sy_contours):
+		self.pathology = pathology 
 		self.gender = gender
 		self.weight = weight
 		self.height = height
