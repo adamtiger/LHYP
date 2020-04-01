@@ -36,8 +36,10 @@ class DataLoader:
 			frm_num = list(contours[i])
 			if 'ln' not in contours[i][frm_num[0]] and 'ln' not in contours[i][frm_num[1]]:
 				i = i+1
+			if 'ln' not in contours[i][frm_num[0]] and 'ln' not in contours[i][frm_num[1]]:
+				i = i-2
 
-		with open(directory+"/meta", "r") as meta:
+		with open(directory+"/meta.txt", "r") as meta:
 			pathology = meta.readline().split(' ')[1]
 
 		frm_num = list(contours[3])
