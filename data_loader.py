@@ -24,20 +24,20 @@ class DataLoader:
 		dr =  DCMreaderVM(directory + '/sa/images')
 		_, __, weight, height, gender = cr.get_volume_data()
 
+		num = [4 , 8, 10]
+		# if(len(contours)==12):
+		# 	num=[3, 6, 10]
+		# elif(len(contours)==13):
+		# 	num=[4,7,10]
+		# else:
+		# 	num=[4,8,11]
 
-		if(len(contours)==12):
-			num=[3, 6, 10]
-		elif(len(contours)==13):
-			num=[4,7,10]
-		else:
-			num=[4,8,11]
-
-		for i in num:
-			frm_num = list(contours[i])
-			if 'ln' not in contours[i][frm_num[0]] and 'ln' not in contours[i][frm_num[1]]:
-				i = i+1
-			if 'ln' not in contours[i][frm_num[0]] and 'ln' not in contours[i][frm_num[1]]:
-				i = i-2
+		# for i in num:
+		# 	frm_num = list(contours[i])
+		# 	if 'ln' not in contours[i][frm_num[0]] and 'ln' not in contours[i][frm_num[1]]:
+		# 		i = i+1
+		# 	if 'ln' not in contours[i][frm_num[0]] and 'ln' not in contours[i][frm_num[1]]:
+		# 		i = i-2
 
 		with open(directory+"/meta.txt", "r") as meta:
 			pathology = meta.readline().split(' ')[1]
