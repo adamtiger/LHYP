@@ -94,3 +94,5 @@ class DataLoader:
 		for i, directory in enumerate(directories):
 			self.picklePatient(rootdir + directory, i)
     		
+dl = DataLoader()
+dl.readAllData()
