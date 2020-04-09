@@ -57,25 +57,21 @@ class DataLoader:
 			systole_fr = frm_num[0]
 		
 		dy_images = []
-		dy_contours = []
 		sy_images = []
-		sy_contours = []
+
 		for i in num:
 			dy_images.append(dr.get_image(i, dyastole_fr))
-			dy_contours.append( contours[i][dyastole_fr]['ln'])
 			sy_images.append(dr.get_image(i, systole_fr))
-			sy_contours.append(contours[i][systole_fr]['ln'])
 
-		return  pathology, weight, height, gender, np.array(dy_images, dtype=np.uint8), dy_contours, np.array(sy_images, dtype=np.uint8), sy_contours 
+		return  pathology, weight, height, gender, np.array(dy_images, dtype=np.uint8), np.array(sy_images, dtype=np.uint8)
 
 
 	def picklePatient(self, directory, id):
 		print(id)
-		pathology, weight, height, gender, dy_images, dy_contours, sy_images, sy_contours = self.sort_cons(directory)
+		pathology, weight, height, gender, dy_images, sy_images = self.sort_cons(directory)
 
 		
-		patient = Patient(pathology, gender, weight, height, dy_images,
-						 dy_contours, sy_images, sy_contours)
+		patient = Patient(pathology, gender, weight, height, dy_images, sy_images)
 
 		output = 'patient'+str(id)
 		with open(output,'wb') as outfile:
