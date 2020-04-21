@@ -8,7 +8,7 @@ import os
 
 class DataLoader:
 	def __init__(self):
-		self.fileLocation = '/userhome/student/lhyp/sample/'
+		self.fileLocation = '/mnt/c/cucc/sample/'
 		#self.fileLocation = 'C:\\Users\\Sonrisa\\Desktop\\lhyp\\sample\\'
 
 	def calc_area(self, con):
@@ -38,8 +38,10 @@ class DataLoader:
 			
 
 		gap = len(temp_num)//3
+
+		num.append(temp_num[1]+1)
 		for k in range(2):
-			num.append(temp_num[1]+k*gap)
+			num.append(temp_num[1]+1+k*gap)
 
 		with open(directory+"/meta.txt", "r") as meta:
 			pathology = meta.readline().split(' ')[1]
@@ -67,7 +69,6 @@ class DataLoader:
 
 
 	def picklePatient(self, directory, id):
-		print(id)
 		pathology, weight, height, gender, dy_images, sy_images = self.sort_cons(directory)
 
 		
@@ -82,6 +83,21 @@ class DataLoader:
 		directories = next(os.walk(rootdir))[1]
 		for i, directory in enumerate(directories):
 			self.picklePatient(rootdir + directory, i)
-    		
-dl = DataLoader()
-dl.readAllData()
+
+	def unpicklePatients(self, directory):
+		patients = []
+
+		for root, dirs, files in os.walk(directory):
+			for f in files:
+				with open(directory +'/'+ f, 'rb') as infile:
+					patients.append(pickle.load(infile, encoding='bytes'))
+			break
+
+		return patients
+
+def main():
+	dl = DataLoader()
+	dl.readAllData()
+
+if __name__ == "__main__":
+	main()
