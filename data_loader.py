@@ -5,10 +5,12 @@ import numpy as np
 from patient import Patient
 import pickle
 import os
+import sys, getopt
 
 class DataLoader:
-	def __init__(self):
-		self.fileLocation = '/mnt/c/cucc/sample/'
+	def __init__(self, inputdir, outputdir):
+		self.fileLocation = inputdir
+		self.outputdir = outputdir
 		#self.fileLocation = 'C:\\Users\\Sonrisa\\Desktop\\lhyp\\sample\\'
 
 	def calc_area(self, con):
@@ -74,15 +76,17 @@ class DataLoader:
 		
 		patient = Patient(pathology, gender, weight, height, dy_images, sy_images)
 
-		output = 'patient'+str(id)
+		output = self.outputdir + '/' + str(directory.split('/')[-1])
 		with open(output,'wb') as outfile:
 			pickle.dump(patient,outfile)
 
 	def readAllData(self):
 		rootdir = self.fileLocation
+
 		directories = next(os.walk(rootdir))[1]
 		for i, directory in enumerate(directories):
-			self.picklePatient(rootdir + directory, i)
+			if not os.path.exists(self.outputdir + '/' + str(directory.split('/')[-1])):
+				self.picklePatient(rootdir + directory, i)
 
 	def unpicklePatients(self, directory):
 		patients = []
@@ -95,9 +99,9 @@ class DataLoader:
 
 		return patients
 
-def main():
-	dl = DataLoader()
+def main(argv):
+	dl = DataLoader(argv[0], argv[1])
 	dl.readAllData()
 
 if __name__ == "__main__":
-	main()
+	main(sys.argv[1:])
