@@ -30,7 +30,7 @@ def loadPatients(dirpath, num_of_classes):
             data.append({'img': Image.fromarray(
                 patient.sy_images[i]), 'label': label})
     print(data)
-    with open('data/pickle/train'+num_of_classes, 'wb') as pik:
+    with open('../data/pickle/train'+num_of_classes, 'wb') as pik:
         pickle.dump(data, pik)
 
     data = []
@@ -45,7 +45,7 @@ def loadPatients(dirpath, num_of_classes):
             data.append({'img': Image.fromarray(
                 patient.sy_images[i]), 'label': label})
     print(data)
-    with open('drive/My Drive/onlab/data/pickle/val'+num_of_classes, 'wb') as pik:
+    with open('../data/pickle/val'+num_of_classes, 'wb') as pik:
         pickle.dump(data, pik)
 
     data = []
@@ -60,5 +60,5 @@ def loadPatients(dirpath, num_of_classes):
             data.append({'img': Image.fromarray(
                 patient.sy_images[i]), 'label': label})
     print(data)
-    with open('drive/My Drive/onlab/data/pickle/test'+num_of_classes, 'wb') as pik:
+    with open('../data/pickle/test'+num_of_classes, 'wb') as pik:
         pickle.dump(data, pik)

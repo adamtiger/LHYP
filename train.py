@@ -18,9 +18,8 @@ import matplotlib.pyplot as plt
 import datetime
 
 
-def training(model_name, batch_size, num_of_epochs, learning_rate):
+def training(model_name, num_of_classes, batch_size, num_of_epochs, learning_rate):
 
-    num_of_classes = 2
 
     trans = transforms.Compose([
         transforms.Resize((250, 250)),
@@ -38,11 +37,11 @@ def training(model_name, batch_size, num_of_epochs, learning_rate):
         transforms.Lambda(lambda x: x.repeat(3, 1, 1))
     ])
 
-    with open('drive/My Drive/onlab/data/pickle/train_2', 'rb') as infile:
+    with open('../data/pickle/train'+num_of_classes, 'rb') as infile:
         train_pat = pickle.load(infile, encoding='bytes')
-    with open('drive/My Drive/onlab/data/pickle/val_2', 'rb') as infile:
+    with open('../data/pickle/val'+num_of_classes, 'rb') as infile:
         val_pat = pickle.load(infile, encoding='bytes')
-    with open('drive/My Drive/onlab/data/pickle/test_2', 'rb') as infile:
+    with open('../data/pickle/test'+num_of_classes, 'rb') as infile:
         test_pat = pickle.load(infile, encoding='bytes')
 
     class_sample_count = [0]*num_of_classes
@@ -75,10 +74,11 @@ def training(model_name, batch_size, num_of_epochs, learning_rate):
         test_dataset, batch_size=batch_size, shuffle=False)
 
     if model_name == 'densenet':
-        model = torchvision.models.densenet161(
-            pretrained=False, progress=True, drop_rate=0.5)
+        model = torchvision.models.densenet121(
+            pretrained=True, progress=True, drop_rate=0.2)
         num_features = model.classifier.in_features
-        model.classifier = nn.Linear(num_features, num_of_classes)
+        model.classifier = nn.Sequential(nn.Dropout(0.3), nn.Linear(
+            num_features, num_of_classes))
     elif model_name == 'resnet':
         model = torchvision.models.resnet18(pretrained=True, progress=True)
         model.fc = nn.Sequential(nn.Dropout(0.65), nn.Linear(
@@ -89,7 +89,7 @@ def training(model_name, batch_size, num_of_epochs, learning_rate):
         model.classifier[1] = nn.Conv2d(
             512, num_of_classes, kernel_size=(1, 1), stride=(1, 1))
 
-    # model.load_state_dict(torch.load('drive/My Drive/onlab/LHYP/models/mobile_3cat.pth'))
+    # model.load_state_dict(torch.load('models/mobile_3cat.pth'))
     best_model_wts = copy.deepcopy(model.state_dict())
 
     print(torch.cuda.is_available())
@@ -105,7 +105,7 @@ def training(model_name, batch_size, num_of_epochs, learning_rate):
 
     # optimizer = optim.SGD(
     #     model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=1e-3)
-    
+
     min_loss = 9999999999999999999.0
 
     writer = SummaryWriter('drive/My Drive/onlab/LHYP/runs/2')
@@ -141,7 +141,19 @@ def training(model_name, batch_size, num_of_epochs, learning_rate):
     # Testing the model
     #torch.save(best_model_wts, 'models/mobile_3cat.pth')
     model.load_state_dict(best_model_wts)
-    test(model, test_dataloader, criterion)
+    conf_mat = test(model, test_dataloader, criterion)
+
+    if num_of_classes == 2:
+        classes = {0: 'Normal', 1: 'Other'}
+    elif num_of_classes == 3:
+        classes = {0: 'Normal', 1: 'HCM', 2: 'Other'}
+
+    df_cm = pd.DataFrame(conf_mat, index=[i for i in classes.values()],
+                         columns=[i for i in classes.values()])
+    plt.figure(figsize=(10, 7))
+    sn.heatmap(df_cm, annot=True)
+    plt.savefig('../charts/'+ model_name +'_'+num_of_classes +'_chart' +
+                datetime.datetime.now().strftime("%H:%M:%S") + '.png')
 
 
 def train(model, dataloader, criterion, optimizer):
@@ -220,19 +232,11 @@ def test(model, test_dataloader, criterion):
 
     print('Test loss: ', val_running_loss, ' Test acc ', val_correct/val_total)
     print('F1 score:    ', f1_score(y_true, y_pred, average='micro'))
-    array = confusion_matrix(y_true, y_pred, normalize='pred')
-    # classes = {0: 'Normal', 1: 'HCM', 2: 'Other'}
-    classes = {0: 'Normal', 1: 'Other'}
-    df_cm = pd.DataFrame(array, index=[i for i in classes.values()],
-                         columns=[i for i in classes.values()])
-    plt.figure(figsize=(10, 7))
-    sn.heatmap(df_cm, annot=True)
-    plt.savefig('drive/My Drive/onlab/charts/squeeze2_chart' +
-                datetime.datetime.now().strftime("%H:%M:%S") + '.png')
+    return confusion_matrix(y_true, y_pred, normalize='pred')
 
 
 def main():
-    training('resnet', 32, 10, 6e-5)
+    training('resnet', 2, 32, 10, 6e-5)
 
 
 if __name__ == "__main__":
